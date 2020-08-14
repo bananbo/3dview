@@ -22,7 +22,7 @@ namespace _3dview
         private void button2_Click(object sender, EventArgs e)
         {
             // read shape data
-            var polygon = SurfaceAnalyzer.LoadData.LoadSTL(@"local\cube.STL", true);
+            var polygon = SurfaceAnalyzer.LoadData.LoadSTL(@"..\..\STL\cube.STL", true);
 
             // render 3Dshape
             viewer.Render(polygon);

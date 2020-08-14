@@ -19,10 +19,10 @@ namespace _3dview
     {
         #region Camera__Field
 
-        bool isCameraRotating;      //カメラが回転状態かどうか
-        Vector2 current, previous;  //現在の点、前の点
-        float zoom = 1.0f;                 //拡大度
-        double rotateX = 1, rotateY = 0, rotateZ = 0;//カメラの回転による移動
+        bool isCameraRotating;
+        Vector2 current, previous;
+        float zoom = 1.0f;
+        double rotateX = 1, rotateY = 0, rotateZ = 0;
         float theta = 0;
         float phi = 0;
 
@@ -35,7 +35,7 @@ namespace _3dview
             AddglControl();
         }
 
-        // glControlの追加
+        // add glControl
         GLControl glControl;
         private void AddglControl()
         {
@@ -44,7 +44,7 @@ namespace _3dview
             int width = this.Width;
             int height = this.Height;
 
-            //GLControlの初期化
+            // init GLControl
             glControl = new GLControl();
 
             glControl.Name = "SHAPE";
@@ -52,7 +52,7 @@ namespace _3dview
             glControl.Location = new System.Drawing.Point(0, 0);
             glControl.SendToBack();
 
-            //イベントハンドラ
+            // add event handler
             glControl.Load += new EventHandler(glControl_Load);
             glControl.Resize += new EventHandler(glControl_Resize);
             glControl.MouseDown += new System.Windows.Forms.MouseEventHandler(this._3DView_MouseDown);
@@ -90,7 +90,6 @@ namespace _3dview
 
         private void _3DView_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            // 右ボタンが押された場合
             if (e.Button == MouseButtons.Right)
             {
                 isCameraRotating = true;
@@ -102,7 +101,6 @@ namespace _3dview
 
         private void _3DView_MouseUp(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            //右ボタンが押された場合
             if (e.Button == MouseButtons.Right)
             {
                 isCameraRotating = false;
@@ -114,7 +112,6 @@ namespace _3dview
 
         private void _3DView_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            // カメラが回転状態の場合
             if (isCameraRotating)
             {
                 previous = current;
@@ -142,7 +139,6 @@ namespace _3dview
 
             zoom *= (float)Math.Pow(1.001, delta);
 
-            //拡大、縮小の制限
             if (zoom > 4.0f)
                 zoom = 4.0f;
             if (zoom < 0.03f)
@@ -161,23 +157,22 @@ namespace _3dview
         {
             Polygon = polygon;
 
-            // バッファのクリア
+            // clear buffer
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            // カメラ設定
+            // set camera setting
             Vector3 vec_rotate = new Vector3((float)rotateX, (float)rotateY, (float)rotateZ);
             Vector3 center = new Vector3(N2TK(Polygon.GravityPoint()));
             Vector3 eye = center + vec_rotate * center.LengthFast / zoom;
             Matrix4 modelView = Matrix4.LookAt(eye, center, Vector3.UnitY);
 
-            // 表示設定
+            // set disp mode
             GL.MatrixMode(MatrixMode.Modelview);
             GL.LoadMatrix(ref modelView);
 
-            // 3D形状の表示
+            // display shape model
             DrawPolygons(polygon);
 
-            // バッファの入れ替え
             glControl.SwapBuffers();
         }
 
@@ -185,10 +180,8 @@ namespace _3dview
         {
             if (polygon == null) return;
 
-            //描画
             GL.Begin(PrimitiveType.Triangles);
 
-            //三角形を描画
             for (int l = 0; l < polygon.Faces.Count; l++)
             {
                 var normal = polygon.Faces[l].Normal();
@@ -198,13 +191,14 @@ namespace _3dview
                 GL.Vertex3(N2TK(polygon.Faces[l].Vertices[2].P));
                 GL.Vertex3(N2TK(polygon.Faces[l].Vertices[1].P));
             }
+
             GL.End();
         }
 
-        // Numerics.Vector3をOpenTK.Vector3に変換します。
+        // convert Numerics.Vector3 to OpenTK.Vector3
         private static OpenTK.Vector3 N2TK(System.Numerics.Vector3 vec3) => new Vector3(vec3.X, vec3.Z, vec3.Y);
 
-        // 画像の保存
+        // get mat image
         public OpenCvSharp.Mat GetMat()
         {
             int width = glControl.Width;
@@ -213,18 +207,18 @@ namespace _3dview
             float[] floatArr = new float[width * height * 3];
             OpenCvSharp.Mat ret = new OpenCvSharp.Mat(height, width, OpenCvSharp.MatType.CV_32FC3);
 
-            // dataBufferへの画像の読み込み
+            // read dataBuffer
             IntPtr dataBuffer = Marshal.AllocHGlobal(width * height * 12);
             GL.ReadBuffer(ReadBufferMode.Front);
             GL.ReadPixels(0, 0, width, height, PixelFormat.Bgr, PixelType.Float, dataBuffer);
 
-            // imgへの読み込み
+            // to img array
             Marshal.Copy(dataBuffer, floatArr, 0, floatArr.Length);
 
-            // opencvsharp.Matへの変換
+            // to opencvsharp.Mat
             Marshal.Copy(floatArr, 0, ret.Data, floatArr.Length);
 
-            // 破棄
+            // dispose
             Marshal.FreeHGlobal(dataBuffer);
 
             return ret;

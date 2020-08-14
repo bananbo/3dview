@@ -14,29 +14,30 @@ namespace _3dview
         Viewer viewer;
         private void button1_Click(object sender, EventArgs e)
         {
+            // open viewer
             viewer = new Viewer();
             viewer.Show();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            // 形状の読み込み
-            var polygon = SurfaceAnalyzer.LoadData.LoadSTL(@"C:\Users\banan\Desktop\local\cube3_とんがり2.STL", true);
+            // read shape data
+            var polygon = SurfaceAnalyzer.LoadData.LoadSTL(@"local\cube.STL", true);
 
-            // 形状のレンダリング
+            // render 3Dshape
             viewer.Render(polygon);
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            // viewerの画像の取得
+            // get viewer image
             using (Mat mat = viewer.GetMat())
             {
-                // 画像の表示
+                // show image
                 Cv2.ImShow("mat", mat);
 
-                // 画像の保存
-                Cv2.ImWrite(@"C:\Users\banan\Desktop\local\mat.jpg", mat * 256);
+                // save image
+                Cv2.ImWrite(@"local\mat.jpg", mat * 256);
             }
         }
     }

@@ -196,7 +196,7 @@ namespace _3dview
         }
 
         // convert Numerics.Vector3 to OpenTK.Vector3
-        private static OpenTK.Vector3 N2TK(System.Numerics.Vector3 vec3) => new Vector3(vec3.X, vec3.Z, vec3.Y);
+        private static OpenTK.Vector3 N2TK(System.Numerics.Vector3 vec3) => new Vector3(vec3.X, vec3.Y, vec3.Z);
 
         // get mat image
         public OpenCvSharp.Mat GetMat()
